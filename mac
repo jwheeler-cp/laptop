@@ -128,10 +128,6 @@ brew "vim"
 brew "watchman"
 brew "zsh"
 
-# Heroku
-brew "heroku/brew/heroku"
-brew "parity"
-
 # GitHub
 brew "hub"
 
@@ -143,6 +139,11 @@ brew "libyaml" # should come after openssl
 brew "coreutils"
 brew "yarn"
 cask "gpg-suite"
+
+# Apps
+brew "nginx"
+brew "ghostscript"
+brew "awsebcli"
 
 # Databases
 brew "postgres", restart_service: :changed
@@ -178,8 +179,7 @@ add_or_update_asdf_plugin "nodejs" "https://github.com/asdf-vm/asdf-nodejs.git"
 
 install_asdf_language() {
   local language="$1"
-  local version
-  version="$(asdf list-all "$language" | grep -v "[a-z]" | tail -1)"
+  local version="$2"
 
   if ! asdf list "$language" | grep -Fq "$version"; then
     asdf install "$language" "$version"
@@ -187,16 +187,18 @@ install_asdf_language() {
   fi
 }
 
-fancy_echo "Installing latest Ruby ..."
-install_asdf_language "ruby"
+fancy_echo "Installing Ruby 2.6.1, for ATS..."
+install_asdf_language "ruby" "2.6.1"
+fancy_echo "Installing Ruby 2.3.1..., for hris"
+install_asdf_language "ruby" "2.3.1"
 gem update --system
 gem_install_or_update "bundler"
 number_of_cores=$(sysctl -n hw.ncpu)
 bundle config --global jobs $((number_of_cores - 1))
 
-fancy_echo "Installing latest Node ..."
+fancy_echo "Installing Node 8.9.4..."
 bash "$HOME/.asdf/plugins/nodejs/bin/import-release-team-keyring"
-install_asdf_language "nodejs"
+install_asdf_language "nodejs" "8.9.4"
 
 if [ -f "$HOME/.laptop.local" ]; then
   fancy_echo "Running your customizations from ~/.laptop.local ..."
